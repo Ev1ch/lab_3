@@ -1,85 +1,92 @@
 #include <string>
-#include <vector>
-#include <array>
 #include <fstream>
 #include <iostream>
 
 class Dictionary
 {
 private:
-    std::string dictionaryName;
-    std::fstream dictionaryFile;
-    std::vector<std::string> dictionary;
+    int dictionarySize = 20000;
+    std::pair<std::string, std::string> *dictionary;
 
-    int hash(std::string key)
+    int makeHash(std::string key)
     {
-        int hash = 0;
-        for (size_t i = 0; i < key.length(); i++)
-            hash += key[i] * (i + 1);
-        return hash % this->dictionary.size();
+        int hash;
+        for (size_t i = 1; i <= key.length(); i++)
+        {
+            hash += (int)key[i - 1] * i;
+        }
+
+        return hash % dictionarySize;
     }
 
-    std::string toUpper(std::string str)
+    void createDictionary(std::string dictionaryFileName)
     {
-        for (std::string::size_type i = 0; i < str.length(); ++i)
-            str[i] = std::toupper(str[i]);
-        return str;
+        std::fstream dictionaryFile(dictionaryFileName);
+        this->dictionary = new std::pair<std::string, std::string>[dictionarySize];
+
+        if (dictionaryFile.is_open())
+        {
+            int wordsNumber = 0;
+            std::string currentLine;
+            while (std::getline(dictionaryFile, currentLine))
+            {
+                wordsNumber++;
+                std::string currentWord = currentLine.substr(0, currentLine.find(';')),
+                            currentDefinition = currentLine.substr(currentLine.find(';') + 2);
+                this->insertWord(currentWord, currentDefinition);
+            }
+        }
+        else
+        {
+            std::cout << "Something wrong with file..." << std::endl;
+        }
     }
 
 public:
-    void getWord(std::string key)
+    Dictionary(std::string dictionaryFileName)
     {
-        if (this->dictionary[this->hash(key)] == "")
+        createDictionary(dictionaryFileName);
+    }
+
+    void insertWord(std::string key, std::string value)
+    {
+        int currentHash = this->makeHash(key);
+
+        if (this->dictionary[currentHash].first.empty())
         {
-            std::cout << "Word doesn't has an explanation" << std::endl;
+            this->dictionary[currentHash] = {key, value};
         }
         else
         {
-            std::cout << key << ": " << this->dictionary[this->hash(key)] << std::endl;
+            while (!this->dictionary[currentHash].first.empty())
+            {
+                currentHash++;
+            }
+            this->dictionary[currentHash] = {key, value};
         }
     }
 
-    void insertWord(){};
-
-    void removeWord(){};
-
-    void importDictionary(std::string dictionaryName)
+    std::string getDefinition(std::string key)
     {
-        this->dictionaryName = dictionaryName;
-        this->dictionaryFile.open(this->dictionaryName);
-
-        if (this->dictionaryFile.is_open())
+        int hash = this->makeHash(key);
+        while (this->dictionary[hash].first != key)
         {
-            std::string line, value;
-            int key = 0, dictionarySize = 0;
-
-            while (getline(this->dictionaryFile, line))
-            {
-                dictionarySize += 1;
-            }
-            this->dictionary.resize(dictionarySize, "");
-            this->dictionaryFile.clear();
-            this->dictionaryFile.seekg(0, std::ios::beg);
-
-            while (getline(this->dictionaryFile, line))
-            {
-                key = this->hash(line.substr(0, line.find(";")));
-                value = line.substr(line.find(";") + 2);
-                dictionary[key] = value;
-            }
-            std::cout << "Dictionary is imported" << std::endl;
+            hash++;
         }
-        else
+        return this->dictionary[hash].second;
+    }
+
+    void printDictionary()
+    {
+        for (size_t i = 0; i < this->dictionarySize; i++)
         {
-            std::cout << "File can't be open" << std::endl;
+            std::cout << "[" << i + 1 << "] " << this->dictionary[i].first << " | " << this->dictionary[i].second << std::endl;
         }
     }
 };
 
 int main()
 {
-    Dictionary dictionary;
-    dictionary.importDictionary("dictionary.txt");
-    dictionary.getWord("kkkk");
-    return 0;
+    Dictionary dictionary("dictionary.txt");
+    std::cout << dictionary.getDefinition("B") << std::endl;
 }
