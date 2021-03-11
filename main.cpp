@@ -171,6 +171,7 @@ public:
             std::cout
                 << YELLOW "Enter a definition: " WHITE << std::endl;
             std::getline(std::cin, definition);
+            word = getWordInUpperLetters(word) ;
             this->insertWord(word, definition, true);
         }
         else if (choice == "3")
