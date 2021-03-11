@@ -108,8 +108,7 @@ public:
         }
     }
 
-    void
-    getDefinition(std::string key)
+    void getDefinition(std::string key)
     {
         int hash = this->makeHash(key);
         bool isFound = true;
@@ -128,7 +127,7 @@ public:
         }
         else
         {
-            std::cout << RED "The definition of this word is not avalible" NC << std::endl;
+            std::cout << RED "The definition of this word is not available" NC << std::endl;
         }
     }
 
@@ -139,7 +138,13 @@ public:
             std::cout << "[" << i + 1 << "] " << this->dictionary[i].first << " | " << this->dictionary[i].second << std::endl;
         }
     }
-
+    std::string getWordInUpperLetters( std::string word ){
+        std::string upperWord = "" ;
+        for( int i = 0 ; i < word.size() ; i ++ ){
+            upperWord += toupper(word[i]) ;
+        }
+        return upperWord ;
+    }
     void menu()
     {
         std::string choice = "";
@@ -155,6 +160,7 @@ public:
         {
             std::cout << YELLOW "Enter a word: " WHITE << std::endl;
             std::cin >> word;
+            word = getWordInUpperLetters(word) ;
             getDefinition(word);
         }
         else if (choice == "2")
