@@ -9,11 +9,15 @@
 #define WHITE "\e[37m"
 #define NC "\e[0m"
 
+struct Pair{
+    std::string Key, Value ;
+};
+
 class Dictionary
 {
 private:
     int dictionarySize = 20000;
-    std::pair<std::string, std::string> *dictionary;
+    Pair *dictionary;
 
     int makeHash(std::string key)
     {
@@ -29,7 +33,7 @@ private:
     void createDictionary(std::string dictionaryFileName)
     {
         std::fstream dictionaryFile(dictionaryFileName);
-        this->dictionary = new std::pair<std::string, std::string>[dictionarySize];
+        this->dictionary = new Pair[dictionarySize];
 
         if (dictionaryFile.is_open())
         {
@@ -59,7 +63,7 @@ public:
     void insertWord(std::string key, std::string value, bool toPrint)
     {
         int currentHash = this->makeHash(key);
-        if (this->dictionary[currentHash].first.empty())
+        if (this->dictionary[currentHash].Key.empty())
         {
             this->dictionary[currentHash] = {key, value};
             if (toPrint)
@@ -67,7 +71,7 @@ public:
                 std::cout << GREEN "Word was inserted." NC << std::endl;
             }
         }
-        else if (this->dictionary[currentHash].first == key)
+        else if (this->dictionary[currentHash].Key == key)
         {
             if (toPrint)
             {
@@ -80,7 +84,7 @@ public:
 
                 if (choice == "1")
                 {
-                    this->dictionary[currentHash].second = value;
+                    this->dictionary[currentHash].Value = value;
                     std::cout << GREEN "Word was inserted." NC << std::endl;
                 }
                 else
@@ -90,12 +94,12 @@ public:
             }
             else
             {
-                this->dictionary[currentHash].second = value;
+                this->dictionary[currentHash].Value = value;
             }
         }
         else
         {
-            while (!this->dictionary[currentHash].first.empty())
+            while (!this->dictionary[currentHash].Key.empty())
             {
                 currentHash++;
                 if (currentHash > this->dictionarySize)
@@ -112,7 +116,7 @@ public:
     {
         int hash = this->makeHash(key);
         bool isFound = true;
-        while (this->dictionary[hash - 1].first != key)
+        while (this->dictionary[hash - 1].Key != key)
         {
             if (hash > this->dictionarySize)
             {
@@ -123,7 +127,7 @@ public:
         }
         if (isFound)
         {
-            std::cout << WHITE "- " << this->dictionary[hash].second << std::endl;
+            std::cout << WHITE "- " << this->dictionary[hash].Value << std::endl;
         }
         else
         {
@@ -135,7 +139,7 @@ public:
     {
         for (size_t i = 0; i < this->dictionarySize; i++)
         {
-            std::cout << "[" << i + 1 << "] " << this->dictionary[i].first << " | " << this->dictionary[i].second << std::endl;
+            std::cout << "[" << i + 1 << "] " << this->dictionary[i].Key << " | " << this->dictionary[i].Value << std::endl;
         }
     }
     std::string getWordInUpperLetters( std::string word )
