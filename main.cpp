@@ -13,10 +13,32 @@ struct Pair{
     std::string Key, Value ;
 };
 
+
+/*/LinkedList/*/
+struct node
+{
+    int data;
+    node* next;
+};
+
+class linkedlist
+{
+    private:
+        node* head;
+
+    public:
+        linkedlist():head(nullptr){}
+
+        void addElement(int d);
+        void display();
+
+};
+/*/=========/*/
+
 class Dictionary
 {
 private:
-    int dictionarySize = 20000;
+    int dictionarySize = 20000 ;
     Pair *dictionary;
 
     int makeHash(std::string key)
@@ -226,4 +248,40 @@ int main()
     dictionary.menu();
 
     return 0;
+}
+void linkedlist::addElement(int x)
+{
+    node* newNode = new node;
+    node* temp = new node;
+    temp = head;
+    newNode->data = x ;
+    if(temp == nullptr)
+    {
+        newNode->next = nullptr;
+        head = newNode;
+        return;
+
+    }
+
+    while( temp->next != nullptr )
+    {
+        temp = temp->next ;
+    }
+    newNode->next = nullptr ;
+    temp->next = newNode ;
+
+}
+void linkedlist::display()
+{
+    node* current = head;
+
+    if (current == nullptr )
+        std::cout << "This is empty linked list.\n";
+
+    while(current != nullptr )
+    {
+        std::cout << current->data << ' ' ;
+        current = current->next;
+    }
+   std:: cout <<'\n' ;
 }
