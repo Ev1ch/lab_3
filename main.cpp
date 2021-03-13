@@ -112,7 +112,7 @@ public:
     {
         int hash = this->makeHash(key);
         bool isFound = true;
-        while (this->dictionary[hash].first != key)
+        while (this->dictionary[hash - 1].first != key)
         {
             if (hash > this->dictionarySize)
             {
@@ -138,10 +138,14 @@ public:
             std::cout << "[" << i + 1 << "] " << this->dictionary[i].first << " | " << this->dictionary[i].second << std::endl;
         }
     }
-    std::string getWordInUpperLetters( std::string word ){
+    std::string getWordInUpperLetters( std::string word )
+    {
         std::string upperWord = "" ;
-        for( int i = 0 ; i < word.size() ; i ++ ){
-            upperWord += toupper(word[i]) ;
+        for( int i = 0 ; i < word.size() ; i ++ )
+        {
+            /// In case, if we get a sentence like this : Car is something, I guess.
+            if( isalpha(word[i]) )
+                upperWord += toupper(word[i]) ;
         }
         return upperWord ;
     }
@@ -149,22 +153,36 @@ public:
     {
         std::string choice = "";
         std::cout << YELLOW "What do you want to do?" << std::endl;
-        std::cout << "1. Look up for a word." << std::endl;
+        std::cout << "1. Look up for a meaning of words in a sentence." << std::endl;
         std::cout << "2. Insert your definition." << std::endl;
         std::cout << "3. Exit." WHITE << std::endl;
         std::cin >> choice;
         std::cout << std::endl;
 
-        std::string word, definition;
+        std::string sentence, definition;
+        std::string wordsOfSentence[100] ;
         if (choice == "1")
         {
-            std::cout << YELLOW "Enter a word: " WHITE << std::endl;
-            std::cin >> word;
-            word = getWordInUpperLetters(word) ;
-            getDefinition(word);
+            std::cout << YELLOW "Enter a sentence: " WHITE << std::endl;
+            int amountOfWords = 0, lastSpace = 0 ;
+            std::cin.ignore(1) ;
+            getline(std::cin, sentence) ;
+            sentence += " " ;
+            while(sentence.find(' ', lastSpace) != -1 )
+            {
+                wordsOfSentence[ amountOfWords ++ ] = sentence.substr(lastSpace, sentence.find(' ', lastSpace) - lastSpace) ;
+                lastSpace = sentence.find(' ', lastSpace) + 1;
+            }
+            for(int i = 0 ; i < amountOfWords ; i ++ )
+            {
+                std::cout << '\n' << getWordInUpperLetters(wordsOfSentence[i]) << '\n';
+                getDefinition( getWordInUpperLetters(wordsOfSentence[i]) ) ;
+                std::cout << "\n" ;
+            }
         }
         else if (choice == "2")
         {
+            std::string word;
             std::cout << YELLOW "Enter a word: " WHITE << std::endl;
             std::cin >> word;
             std::cin.ignore(10000, '\n');
@@ -177,7 +195,7 @@ public:
         else if (choice == "3")
         {
             std::cout
-                << YELLOW "Godbye." NC
+                << YELLOW "Goodbye." NC
                 << std::endl;
             return;
         }
@@ -189,6 +207,12 @@ public:
         }
         std::cout << std::endl;
         this->menu();
+        /**
+        if we get a sentence we should look at the ending of words
+        For example:
+        looks -> should look for a word : look
+        is -> should look for a word : be
+        */
     }
 };
 
