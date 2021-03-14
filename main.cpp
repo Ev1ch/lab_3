@@ -22,17 +22,43 @@ struct node
 
 class LinkedList
 {
-    public:
-        node* head;
+public:
+    node* head;
 
-    public:
-        LinkedList():head(nullptr){}
+public:
+    LinkedList():head(nullptr){}
 
-        void push(Pair x);
-        void display();
+    void push(Pair x);
+    void display();
 
 };
-void LinkedList::push(Pair x)
+
+class Hash{
+public:
+    int BUCKET = 20000 ;
+    LinkedList *dictionary ;
+
+    Hash() ;
+
+    int makeHash(std::string key);
+    void addElement(Pair data) ;
+    void displayHash() ;
+    bool getDefinition(std::string key, std::string definition, bool change);
+};
+
+void createDictionary(Hash&);
+void menu(Hash&) ;
+
+int main()
+{
+    Hash dictionary ;
+    createDictionary(dictionary);
+    //dictionary.displayHash() ;
+    menu(dictionary);
+    return 0;
+}
+
+inline void LinkedList::push(Pair x)
 {
     node* newNode = new node;
     node* temp = new node;
@@ -54,69 +80,10 @@ void LinkedList::push(Pair x)
     temp->next = newNode ;
 
 }
-
-class Hash{
-public:
-    int BUCKET = 20000;
-    LinkedList *dictionary ;
-
-    Hash() ;
-
-    int makeHash(std::string key);
-    void addElement(Pair data) ;
-    void displayHash() ;
-    bool getDefinition(std::string key);
-};
-
-void createDictionary(Hash&);
-void menu(Hash&) ;
-
-int main()
-{
-    Hash dictionary ;
-    createDictionary(dictionary);
-    menu(dictionary);
-    return 0;
-}
-
 Hash::Hash()
 {
     dictionary = new LinkedList[BUCKET] ;
 }
-inline void Hash::addElement( Pair data )
-{
-    int hash = makeHash( data.Key ) ;
-    dictionary[hash].push(data) ;
-}
-inline int Hash::makeHash(std::string key)
-{
-    int hash;
-    for (size_t i = 1; i <= key.length(); i++)
-    {
-        hash += (int)key[i - 1] * i;
-    }
-
-    return hash % BUCKET ;
-}
-
-inline bool Hash::getDefinition(std::string key){
-    int hash = makeHash(key) ;
-    node* current = dictionary[hash].head;
-
-    if (current == nullptr )
-        return false ;
-
-    while(current != nullptr )
-    {
-        if( current->data.Key == key ){
-            std::cout << current->data.Value << '\n' ;
-            return true ;
-        }
-        current = current->next;
-    }
-    return false ;
-}
-
 std::string getWordInUpperLetters( std::string word )
 {
     std::string upperWord = "" ;
@@ -128,10 +95,49 @@ std::string getWordInUpperLetters( std::string word )
     }
     return upperWord ;
 }
+inline void Hash::addElement( Pair data )
+{
+    int hash = makeHash( getWordInUpperLetters(data.Key) ) ;
+    dictionary[hash].push( data) ;
+}
+inline int Hash::makeHash(std::string key)
+{
+    int hash;
+    for (size_t i = 1; i <= key.length(); i++)
+    {
+        hash += (int)key[i - 1] * i;
+    }
+
+    return hash % BUCKET ;
+}
+inline bool Hash::getDefinition(std::string key, std::string definition, bool change)
+{
+    int hash = makeHash(key);
+    if(change == true )
+        hash ++ ;
+    node* current = dictionary[hash].head;
+
+    while(current != nullptr )
+    {
+        if( current->data.Key == key ){
+            if(!change)
+            {
+                std::cout << current->data.Value << '\n' ;
+                return true ;
+            } else if(change){
+                current->data.Value = definition ;
+                return true ;
+            }
+
+        }
+        current = current->next;
+    }
+    return false ;
+}
 inline void Hash::displayHash()
 {
     for( size_t i = 0 ; i < BUCKET ; i ++ ){
-        std::cout << i + 1 << " | " ;
+        std::cout << i << " | " ;
         node* current = dictionary[i].head;
         while(current != nullptr )
         {
@@ -146,7 +152,8 @@ void menu(Hash& dictionary)
     std::string choice = "";
     std::cout << YELLOW "What do you want to do?" << std::endl;
     std::cout << "1. Look up for a meaning of words in a sentence." << std::endl;
-    std::cout << "2. Exit." WHITE << std::endl;
+    std::cout << "2. Insert your definition." << std::endl;
+    std::cout << "3. Exit." WHITE << std::endl;
     std::cin >> choice;
     std::cout << std::endl;
 
@@ -167,13 +174,32 @@ void menu(Hash& dictionary)
         for(int i = 0 ; i < amountOfWords ; i ++ )
         {
             std::cout << '\n' << getWordInUpperLetters(wordsOfSentence[i]) << '\n';
-            bool check = dictionary.getDefinition( getWordInUpperLetters(wordsOfSentence[i]) ) ;
+            bool check = dictionary.getDefinition( getWordInUpperLetters(wordsOfSentence[i]), "", false ) ;
             if(!check )
-                std::cout << RED "The definition of this word is not avalible" NC ;
+                std::cout << RED "The definition of this word is not available" NC ;
             std::cout << "\n" ;
         }
     }
     else if (choice == "2")
+    {
+        std::string word, definition ;
+        std::cout << YELLOW "Enter a word: " WHITE << std::endl;
+        std::cin >> word;
+        std::cin.ignore(10000, '\n');
+        std::cout
+            << YELLOW "Enter a definition: " WHITE << std::endl;
+        std::getline(std::cin, definition);
+
+        if( dictionary.getDefinition( getWordInUpperLetters(word), definition, true) )
+        {
+            std::cout << "Everything OK! We changed this definition!\n" ;
+        }
+        else
+        {
+            std::cout << "Sorry, we does not have this word, so we can't change it." ;
+        }
+    }
+    else if (choice == "3")
     {
         std::cout
             << YELLOW "Goodbye." NC
