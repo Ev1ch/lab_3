@@ -2,7 +2,6 @@
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
-#include <list>
 
 #define YELLOW "\033[33m"
 #define RED "\033[31m"
@@ -50,11 +49,20 @@ public:
 void createDictionary(Hash&);
 void menu(Hash&) ;
 
-void Hash::rebuild()
+int main()
+{
+    Hash dictionary ;
+    createDictionary(dictionary);
+    menu(dictionary);
+    return 0;
+}
+
+inline void Hash::rebuild()
 {
     this->BUCKET = BUCKET * 2 ;
     LinkedList *rebuilding = new LinkedList[BUCKET] ;
-    for( long long i = 0 ; i < BUCKET / 2 ; i ++ ){
+    for( long long i = 0 ; i < BUCKET / 2 ; i ++ )
+    {
         node* current = dictionary[i].head;
         while(current != nullptr )
         {
@@ -66,16 +74,6 @@ void Hash::rebuild()
     delete[] dictionary ;
     dictionary = rebuilding ;
 }
-
-int main()
-{
-    Hash dictionary ;
-    createDictionary(dictionary);
-    //dictionary.displayHash() ;
-    menu(dictionary);
-    return 0;
-}
-
 inline void LinkedList::push(Pair x)
 {
     node* newNode = new node;
@@ -107,9 +105,10 @@ std::string getWordInUpperLetters( std::string word )
     std::string upperWord = "" ;
     for( int i = 0 ; i < word.size() ; i ++ )
     {
-        /// In case, if we get a sentence like this : Car is something, I guess.
         if( isalpha(word[i]) )
+        {
             upperWord += toupper(word[i]) ;
+        }
     }
     return upperWord ;
 }
@@ -221,7 +220,7 @@ void menu(Hash& dictionary)
     {
         std::cout
             << YELLOW "Goodbye." NC
-            << std::endl;
+                << std::endl;
         return;
     }
     else
