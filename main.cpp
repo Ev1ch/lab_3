@@ -24,16 +24,7 @@ public:
     int makeHash(std::string key);
     void addElement(Pair data) ;
     void displayHash() ;
-    bool getDefinition(std::string key){
-        int hash = makeHash(key) ;
-        for( auto u : dictionary[hash]){
-            if( u.Key == key ){
-                std::cout << u.Value << '\n' ;
-                return true;
-            }
-        }
-        return false ;
-    }
+    bool getDefinition(std::string key);
 };
 
 void createDictionary(Hash&);
@@ -41,9 +32,9 @@ void menu(Hash&) ;
 
 int main()
 {
-    Hash h ;
-    createDictionary(h);
-    menu(h);
+    Hash dictionary ;
+    createDictionary(dictionary);
+    menu(dictionary);
     return 0;
 }
 
@@ -66,7 +57,16 @@ inline int Hash::makeHash(std::string key)
 
     return hash % BUCKET ;
 }
-
+inline bool Hash::getDefinition(std::string key){
+    int hash = makeHash(key) ;
+    for( auto u : dictionary[hash]){
+        if( u.Key == key ){
+            std::cout << u.Value << '\n' ;
+            return true;
+        }
+    }
+    return false ;
+}
 std::string getWordInUpperLetters( std::string word )
 {
     std::string upperWord = "" ;
@@ -88,7 +88,7 @@ inline void Hash::displayHash()
         std::cout << '\n' ;
     }
 }
-void menu(Hash& h)
+void menu(Hash& dictionary)
 {
     std::string choice = "";
     std::cout << YELLOW "What do you want to do?" << std::endl;
@@ -114,7 +114,7 @@ void menu(Hash& h)
         for(int i = 0 ; i < amountOfWords ; i ++ )
         {
             std::cout << '\n' << getWordInUpperLetters(wordsOfSentence[i]) << '\n';
-            bool check = h.getDefinition( getWordInUpperLetters(wordsOfSentence[i]) ) ;
+            bool check = dictionary.getDefinition( getWordInUpperLetters(wordsOfSentence[i]) ) ;
             if(!check )
                 std::cout << RED "The definition of this word is not avalible" NC ;
             std::cout << "\n" ;
@@ -134,9 +134,9 @@ void menu(Hash& h)
             << std::endl;
     }
     std::cout << std::endl;
-    menu(h);
+    menu(dictionary);
 }
-void createDictionary(Hash& h)
+void createDictionary(Hash& dictionary)
 {
     std::fstream dictionaryFile("dictionary.txt");
     if (dictionaryFile.is_open())
@@ -150,7 +150,7 @@ void createDictionary(Hash& h)
                         currentDefinition = currentLine.substr(currentLine.find(';') + 2);
             Pair data ;
             data.Key = currentWord, data.Value = currentDefinition ;
-            h.addElement( data );
+            dictionary.addElement( data );
         }
         std::cout << GREEN "Dictionary is imported." NC << std::endl;
     }
