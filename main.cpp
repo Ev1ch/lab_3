@@ -35,7 +35,7 @@ public:
 
 class Hash{
 public:
-    int BUCKET = 20000 ;
+    int BUCKET = 20 ;
     LinkedList *dictionary ;
 
     Hash() ;
@@ -44,10 +44,28 @@ public:
     void addElement(Pair data) ;
     void displayHash() ;
     bool getDefinition(std::string key, std::string definition, bool change);
+    void rebuild() ;
 };
 
 void createDictionary(Hash&);
 void menu(Hash&) ;
+
+void Hash::rebuild()
+{
+    this->BUCKET = BUCKET * 2 ;
+    LinkedList *rebuilding = new LinkedList[BUCKET] ;
+    for( long long i = 0 ; i < BUCKET / 2 ; i ++ ){
+        node* current = dictionary[i].head;
+        while(current != nullptr )
+        {
+            int hash = makeHash(current->data.Key) ;
+            rebuilding[hash].push(current->data) ;
+            current = current->next;
+        }
+    }
+    delete[] dictionary ;
+    dictionary = rebuilding ;
+}
 
 int main()
 {
@@ -224,6 +242,11 @@ void createDictionary(Hash& dictionary)
         std::string currentLine;
         while (std::getline(dictionaryFile, currentLine))
         {
+
+            if( wordsNumber >= 0.8 * dictionary.BUCKET  ){
+                dictionary.rebuild() ;
+            }
+
             wordsNumber++;
             std::string currentWord = currentLine.substr(0, currentLine.find(';')),
                         currentDefinition = currentLine.substr(currentLine.find(';') + 2);
