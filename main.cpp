@@ -14,10 +14,51 @@ struct Pair{
     std::string Key, Value ;
 };
 
+struct node
+{
+    Pair data ;
+    node* next;
+};
+
+class LinkedList
+{
+    public:
+        node* head;
+
+    public:
+        LinkedList():head(nullptr){}
+
+        void push(Pair x);
+        void display();
+
+};
+void LinkedList::push(Pair x)
+{
+    node* newNode = new node;
+    node* temp = new node;
+    temp = head;
+    newNode->data = x ;
+    if(temp == nullptr)
+    {
+        newNode->next = nullptr;
+        head = newNode;
+        return;
+
+    }
+
+    while( temp->next != nullptr )
+    {
+        temp = temp->next ;
+    }
+    newNode->next = nullptr ;
+    temp->next = newNode ;
+
+}
+
 class Hash{
 public:
     int BUCKET = 20000;
-    std::list<Pair> *dictionary ;
+    LinkedList *dictionary ;
 
     Hash() ;
 
@@ -40,12 +81,12 @@ int main()
 
 Hash::Hash()
 {
-    dictionary = new std::list<Pair>[BUCKET] ;
+    dictionary = new LinkedList[BUCKET] ;
 }
 inline void Hash::addElement( Pair data )
 {
     int hash = makeHash( data.Key ) ;
-    dictionary[hash].push_back(data) ;
+    dictionary[hash].push(data) ;
 }
 inline int Hash::makeHash(std::string key)
 {
@@ -57,16 +98,25 @@ inline int Hash::makeHash(std::string key)
 
     return hash % BUCKET ;
 }
+
 inline bool Hash::getDefinition(std::string key){
     int hash = makeHash(key) ;
-    for( auto u : dictionary[hash]){
-        if( u.Key == key ){
-            std::cout << u.Value << '\n' ;
-            return true;
+    node* current = dictionary[hash].head;
+
+    if (current == nullptr )
+        return false ;
+
+    while(current != nullptr )
+    {
+        if( current->data.Key == key ){
+            std::cout << current->data.Value << '\n' ;
+            return true ;
         }
+        current = current->next;
     }
     return false ;
 }
+
 std::string getWordInUpperLetters( std::string word )
 {
     std::string upperWord = "" ;
@@ -80,12 +130,15 @@ std::string getWordInUpperLetters( std::string word )
 }
 inline void Hash::displayHash()
 {
-    for (size_t i = 0; i < BUCKET ; i++)
-    {
-        for( auto u : dictionary[i]){
-            std::cout << u.Key << ' ' << u.Value << '\n' ;
+    for( size_t i = 0 ; i < BUCKET ; i ++ ){
+        std::cout << i + 1 << " | " ;
+        node* current = dictionary[i].head;
+        while(current != nullptr )
+        {
+            std::cout << current->data.Key << " " ;
+            current = current->next;
         }
-        std::cout << '\n' ;
+        std::cout << "\n" ;
     }
 }
 void menu(Hash& dictionary)
