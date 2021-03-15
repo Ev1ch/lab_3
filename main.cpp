@@ -40,7 +40,7 @@ public:
 
     HashTable();
 
-    int makeHashTable(std::string key);
+    int makeHash(std::string key);
     void addElement(Pair data);
     void displayHashTable();
     bool getDefinition(std::string key);
@@ -67,7 +67,7 @@ void HashTable::rebuild()
         Node *current = dictionary[i].head;
         while (current != nullptr)
         {
-            int HashTable = makeHashTable(current->data.key);
+            int HashTable = makeHash(current->data.key);
             rebuilding[HashTable].push(current->data);
             current = current->next;
         }
@@ -79,22 +79,9 @@ void HashTable::rebuild()
 void LinkedList::push(Pair x)
 {
     Node *newNode = new Node;
-    Node *temp = new Node;
-    temp = head;
     newNode->data = x;
-    if (temp == nullptr)
-    {
-        newNode->next = nullptr;
-        head = newNode;
-        return;
-    }
-
-    while (temp->next != nullptr)
-    {
-        temp = temp->next;
-    }
-    newNode->next = nullptr;
-    temp->next = newNode;
+    newNode->next = head;
+    head = newNode;
 }
 
 HashTable::HashTable()
@@ -121,20 +108,20 @@ void HashTable::addElement(Pair data)
     dictionary[HashTable].push(data);
 }
 
-int HashTable::makeHashTable(std::string key)
+int HashTable::makeHash(std::string key)
 {
-    int HashTable;
+    int hash;
     for (size_t i = 1; i <= key.length(); i++)
     {
-        HashTable += (int)key[i - 1] * i;
+        hash += (int)key[i - 1] * i;
     }
 
-    return HashTable % BUCKET;
+    return hash % BUCKET;
 }
 
 bool HashTable::getDefinition(std::string key)
 {
-    int HashTable = makeHashTable(key);
+    int HashTable = makeHash(key);
     Node *current = dictionary[HashTable].head;
 
     while (current != nullptr)
